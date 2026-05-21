@@ -1,0 +1,18 @@
+class ChannelAttention(nn.Module):
+    def __init__(self, channels, reduction=16):
+        super().__init__()
+        self.avg_pool = nn.AdaptiveAvgPool1d(1)
+        self.max_pool = nn.AdaptiveMaxPool1d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(channels, channels//reduction),
+            nn.ReLU(),
+            nn.Linear(channels//reduction, channels),
+            nn.Sigmoid()
+        )
+        
+    def forward(self, x):
+        # x: [B, C, T]
+        avg_out = self.fc(self.avg_pool(x).squeeze(-1))
+        max_out = self.fc(self.max_pool(x).squeeze(-1))
+        out = avg_out + max_out
+        return out.unsqueeze(-1) * x
