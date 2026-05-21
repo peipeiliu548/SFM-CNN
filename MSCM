@@ -1,0 +1,18 @@
+class MultiScaleConv(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.conv_3 = nn.Conv1d(in_channels, out_channels//4, kernel_size=3, padding=1)
+        self.conv_5 = nn.Conv1d(in_channels, out_channels//4, kernel_size=5, padding=2)
+        self.conv_7 = nn.Conv1d(in_channels, out_channels//4, kernel_size=7, padding=3)
+        self.bn = nn.BatchNorm1d(out_channels)
+        self.relu = nn.ReLU()
+        
+    def forward(self, x):
+        h_3 = self.conv_3(x)
+        h_5 = self.conv_5(x)
+        h_7 = self.conv_7(x)
+        
+        # Feature concatenation
+        h_cat = torch.cat([h_3, h_5, h_7, h_11], dim=1)
+        out = self.relu(self.bn(h_cat))
+        return out
